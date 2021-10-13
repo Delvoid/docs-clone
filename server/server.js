@@ -5,7 +5,9 @@ const connectDb = require('./utils/connectDb')
 
 connectDb()
 
-const io = require('socket.io')(3001, {
+const PORT_SOCKET = process.env.PORT || 3001
+
+const io = require('socket.io')(PORT_SOCKET, {
   cors: {
     origin: ['http://localhost:3000', 'http://192.168.0.14:3000'],
     methods: ['GET', 'POST'],
