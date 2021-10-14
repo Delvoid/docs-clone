@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000
 
 const io = require('socket.io')(PORT_SOCKET, {
   cors: {
-    origin: ['http://localhost:3000', 'http://192.168.0.14:3000'],
+    origin: ['http://localhost:3000', 'http://192.168.0.14:3000', 'http://localhost:5000'],
     methods: ['GET', 'POST'],
   },
 })
@@ -52,7 +52,10 @@ const findOrCreateDocument = async (id) => {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '/client/build')))
-  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html')))
+  app.use(express.static(path.join(__dirname, '../client/build')))
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
+  )
 }
+console.log(`dir ${__dirname}`)
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on ${PORT}`))
