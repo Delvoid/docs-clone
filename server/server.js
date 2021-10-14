@@ -6,6 +6,7 @@ const socketio = require('socket.io')
 
 const Document = require('./Document')
 const connectDb = require('./utils/connectDb')
+const cors = require('cors')
 
 //connect to mongo db
 connectDb()
@@ -20,10 +21,32 @@ const PORT = process.env.PORT || 5000
 // })
 
 const app = express()
-const server = http.createServer(app)
-const io = socketio(server)
+app.use(cors())
 
 const defaultValue = ''
+
+const findOrCreateDocument = async (id) => {
+  if (id == null) return
+
+  const document = await Document.findById(id)
+  if (document) return document
+  return await Document.create({ _id: id, data: defaultValue })
+}
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')))
+  app.get('*', cors(), (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
+  )
+}
+console.log(`dir ${__dirname}`)
+const server = app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on ${PORT}`)
+)
+
+//socket
+const io = socketio(server)
 
 io.on('connection', (socket) => {
   console.log('connected')
@@ -46,20 +69,3 @@ io.on('connection', (socket) => {
     console.log('disconnected')
   })
 })
-
-const findOrCreateDocument = async (id) => {
-  if (id == null) return
-
-  const document = await Document.findById(id)
-  if (document) return document
-  return await Document.create({ _id: id, data: defaultValue })
-}
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')))
-  app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
-  )
-}
-console.log(`dir ${__dirname}`)
-app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on ${PORT}`))
