@@ -1,11 +1,16 @@
-const mongoose = require('mongoose')
 require('dotenv').config()
+const express = require('express')
+const path = require('path')
+
+const app = express()
 const Document = require('./Document')
 const connectDb = require('./utils/connectDb')
 
+//connect to mongo db
 connectDb()
 
 const PORT_SOCKET = process.env.PORT || 3001
+const PORT = process.env.PORT || 5000
 
 const io = require('socket.io')(PORT_SOCKET, {
   cors: {
@@ -45,3 +50,9 @@ const findOrCreateDocument = async (id) => {
   if (document) return document
   return await Document.create({ _id: id, data: defaultValue })
 }
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/client/build')))
+  app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html')))
+}
+app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on ${PORT}`))
