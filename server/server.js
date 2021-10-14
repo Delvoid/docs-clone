@@ -1,24 +1,27 @@
 require('dotenv').config()
 const express = require('express')
 const path = require('path')
+const http = require('http')
+const socketio = require('socket.io')
 
-const app = express()
 const Document = require('./Document')
 const connectDb = require('./utils/connectDb')
 
 //connect to mongo db
 connectDb()
 
-const PORT_SOCKET = process.env.PORT || 3001
 const PORT = process.env.PORT || 5000
 
-const io = require('socket.io')
-// (PORT_SOCKET, {
+// const io = require('socket.io')(PORT_SOCKET, {
 //   cors: {
 //     origin: ['http://localhost:3000', 'http://192.168.0.14:3000', 'http://localhost:5000'],
 //     methods: ['GET', 'POST'],
 //   },
 // })
+
+const app = express()
+const server = http.createServer(app)
+const io = socketio(server)
 
 const defaultValue = ''
 
